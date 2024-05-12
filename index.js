@@ -22,7 +22,10 @@ const PORT = process.env.PORT || 4000;
 
 app.use(cors({credentials:true,origin:'http://localhost:3000'}));
 app.use(express.json());
-app.use(cookieParser());
+app.use(cookieParser({
+    secure: true,
+    sameSite: "None",
+}));
 app.use('/uploads',express.static(__dirname + '/uploads'))
 
 const url = process.env.MONGO_URL;
@@ -56,7 +59,10 @@ app.post('/login', async (req,res) => {
         //logged in 
         jwt.sign({username,id:userDoc._id},secret,{}, (err,token)=>{
             if(err) throw err;
-            res.cookie('token',token).json({
+            res.cookie('token',token,{
+                secure: true,
+                sameSite: "None",
+            }).json({
                 id: userDoc._id,
                 username,
             }); 
@@ -78,7 +84,10 @@ app.get('/profile', (req,res) =>{
 })
 
 app.post('/logout',(req,res) => {
-    res.cookie('token', '').json('ok');
+    res.cookie('token', '',{
+        secure: true,
+        sameSite: "None",
+    }).json('ok');
 })
 
 app.post('/post' ,uploadMiddleware.single('file'), async (req,res) =>{
